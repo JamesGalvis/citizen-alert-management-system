@@ -76,7 +76,7 @@ export function RegisterForm() {
   return (
     <div className="flex-1 flex items-center justify-center w-full">
       <FormWrapper
-        headerTitle="Regístrate"
+        headerTitle="Crea tu cuenta"
         headerSubtitle="Introduce tus datos para crear tu cuenta"
         showSocial
       >

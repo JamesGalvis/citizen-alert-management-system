@@ -21,7 +21,9 @@ export default function AuthLayout({
           </p>
         </div>
       </div>
-      <div className="flex-1 lg:px-3 px-1.5 lg:p-4 max-lg:my-4">{children}</div>
+      <div className="flex-1 lg:px-6 px-1.5 lg:py-4 max-lg:my-4">
+        {children}
+      </div>
     </div>
   )
 }
