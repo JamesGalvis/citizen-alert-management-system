@@ -21,8 +21,11 @@ import { LoginFormSchema } from "@/schemas/auth"
 import { FormWrapper } from "@/components/common/auth/form-wrapper"
 import { PasswordInput } from "@/components/common/auth/password-input"
 import { FormStateMessage } from "@/components/common/auth/form-state-message"
+import { useToast } from "@/hooks/use-toast"
+import { login } from "@/actions/auth"
 
 export function LoginForm() {
+  const { toast } = useToast()
   const searchParams = useSearchParams()
 
   const [error, setError] = useState<string | undefined>(undefined)
@@ -43,8 +46,26 @@ export function LoginForm() {
 
   const { isSubmitting } = form.formState
 
-  function onSubmit(values: z.infer<typeof LoginFormSchema>) {
-    console.log(values)
+  async function onSubmit(values: z.infer<typeof LoginFormSchema>) {
+    setError("")
+    setSuccess("")
+
+    try {
+      const response = await login(values)
+
+      setError(response?.error)
+
+      if (!response?.error) {
+        form.reset()
+      }
+    } catch {
+      toast({
+        variant: "destructive",
+        duration: 2500,
+        title: "Uh oh! Algo salió mal.",
+        description: "Ocurrió un problema con tu solicitud.",
+      })
+    }
   }
 
   return (

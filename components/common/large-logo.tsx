@@ -8,14 +8,9 @@ interface LargeLogoProps {
 
 export function LargeLogo({ className }: LargeLogoProps) {
   return (
-    <div
-      className={cn(
-        "select-none flex items-center gap-2",
-        className
-      )}
-    >
+    <div className={cn("select-none flex items-center gap-2", className)}>
       <Image
-        src="./icons/SafeAlert-logo.svg"
+        src="/icons/SafeAlert-logo.svg"
         alt="Logo de SafeAlert"
         width={40}
         height={40}

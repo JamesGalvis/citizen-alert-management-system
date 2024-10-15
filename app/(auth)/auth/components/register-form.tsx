@@ -2,7 +2,6 @@
 
 import { z } from "zod"
 import { useState } from "react"
-import { useSearchParams } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2 } from "lucide-react"
 
@@ -30,8 +29,12 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { entities } from "@/constants"
+import { register } from "@/actions/auth"
+import { useToast } from "@/hooks/use-toast"
 
 export function RegisterForm() {
+  const { toast } = useToast()
+
   const [error, setError] = useState<string | undefined>(undefined)
   const [success, setSuccess] = useState<string | undefined>(undefined)
 
@@ -48,8 +51,26 @@ export function RegisterForm() {
 
   const { isSubmitting } = form.formState
 
-  function onSubmit(values: z.infer<typeof RegisterFormSchema>) {
-    console.log(values)
+  async function onSubmit(values: z.infer<typeof RegisterFormSchema>) {
+    setError("")
+    setSuccess("")
+
+    try {
+      const response = await register(values)
+
+      if (response?.error) {
+        setError(response?.error)
+      }
+
+      form.reset()
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        duration: 2500,
+        title: "Uh oh! Algo salió mal.",
+        description: "Ocurrió un problema con tu solicitud.",
+      })
+    }
   }
 
   return (
