@@ -19,7 +19,7 @@ export default function AuthLayout({
           </p>
         </div>
       </div>
-      <div className="flex-1 lg:px-6 px-1.5 lg:py-8 max-lg:py-6 overflow-y-auto">
+      <div className="flex-1 lg:py-8 max-lg:py-6 overflow-y-auto">
         {children}
       </div>
     </div>

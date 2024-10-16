@@ -39,3 +39,17 @@ export const RegisterFormSchema = z.object({
     required_error: "Debes seleccionar la entidad a la que estas vinculado",
   }),
 })
+
+export const CompleteRegisterFormSchema = z.object({
+  name: z
+    .string()
+    .min(2, { message: "El nombre debe tener por lo menos 2 caracteres" })
+    .trim(),
+  email: z
+    .string()
+    .email({ message: "Por favor ingresa un correo válido." })
+    .trim(),
+  entity: z.enum(["Policía", "Bomberos", "Oficina de Gestión de Riesgos"], {
+    required_error: "Debes seleccionar la entidad a la que estas vinculado",
+  }),
+})

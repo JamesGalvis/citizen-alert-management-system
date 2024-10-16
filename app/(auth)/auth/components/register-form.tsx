@@ -179,8 +179,10 @@ export function RegisterForm() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {entities.map((entity) => (
-                          <SelectItem value={entity}>{entity}</SelectItem>
+                        {entities.map((entity, i) => (
+                          <SelectItem key={i} value={entity}>
+                            {entity}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>

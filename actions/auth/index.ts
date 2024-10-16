@@ -8,7 +8,12 @@ import bcrypt from "bcryptjs"
 import { db } from "@/lib/db"
 import { getUserByEmail } from "@/actions/user"
 import { DEFAULT_AUTH_REDIRECT } from "@/routes"
-import { LoginFormSchema, RegisterFormSchema } from "@/schemas/auth"
+import {
+  CompleteRegisterFormSchema,
+  LoginFormSchema,
+  RegisterFormSchema,
+} from "@/schemas/auth"
+import { currentUser } from "@/lib/auth-user"
 
 export async function login(credentials: z.infer<typeof LoginFormSchema>) {
   const result = LoginFormSchema.safeParse(credentials)
@@ -96,6 +101,49 @@ export async function register(
     }
 
     throw error
+  }
+}
+
+export async function completeRegistration(
+  credentials: z.infer<typeof CompleteRegisterFormSchema>
+) {
+  const loggedUser = await currentUser()
+  const result = CompleteRegisterFormSchema.safeParse(credentials)
+
+  if (result.error) {
+    return { error: "Datos invalidos!" }
+  }
+
+  const { name, email, entity } = result.data
+
+  try {
+    const existingUser = await getUserByEmail(email)
+
+    if (!existingUser) {
+      return { error: "El usuario no existe!" }
+    }
+
+    const existingEntity = await db.entity.findUnique({
+      where: { name: entity },
+    })
+
+    if (!existingEntity) {
+      return { error: "Lo sentimos, la entidad seleccionada no existe aún." }
+    }
+
+    await db.user.update({
+      where: { id: loggedUser?.id },
+      data: {
+        name,
+        entity: {
+          connect: {
+            id: existingEntity.id,
+          },
+        },
+      },
+    })
+  } catch (error) {
+    return { error: "Algo salio mal en el proceso." }
   }
 }
 
