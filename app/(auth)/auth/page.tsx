@@ -15,7 +15,7 @@ export default function AuthPage() {
   const changeFormTrigger = isLoggingIn ? "Regístrate" : "Inicia sesión"
 
   return (
-    <div className="flex flex-col items-center justify-between gap-3 h-full">
+    <div className="flex flex-col items-center justify-between gap-3 min-h-full overflow-hidden">
       <LargeLogo className="lg:hidden" />
 
       {isLoggingIn && <LoginForm />}

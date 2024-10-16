@@ -39,6 +39,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.role = token.role as UserRole
       }
 
+      if (token.entityId && session.user) {
+        session.user.entityId = token.entityId as string
+      }
+
       if (session.user) {
         session.user.name = token.name as string
         session.user.image = token.image as string
@@ -56,6 +60,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       token.role = existingUser.role
       token.name = existingUser.name
       token.image = existingUser.image
+      token.entityId = existingUser.entityId
 
       return token
     },

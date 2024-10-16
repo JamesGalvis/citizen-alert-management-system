@@ -5,7 +5,7 @@ export type ExtendedUser = DefaultSession["user"] & {
   name: string | null
   image: string | null
   role: UserRole | null
-  phone: string | null
+  entityId: string | null
 }
 
 declare module "next-auth" {
