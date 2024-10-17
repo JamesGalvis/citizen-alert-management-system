@@ -1,7 +1,12 @@
 "use server"
 
+import { currentUser } from "@/lib/auth-user"
 import { db } from "@/lib/db"
+import { AlertSchema } from "@/schemas/alerts"
+import { Coordinates } from "@/types"
 import { subMonths } from "date-fns"
+import { connect } from "http2"
+import { z } from "zod"
 
 export async function getAlerts(entityId: string) {
   try {
@@ -54,4 +59,49 @@ export async function getAlertsLastThreeMonthsByEntity(entityId: string) {
   })
 
   return alertsByMonth
+}
+
+export async function createAlert(
+  data: z.infer<typeof AlertSchema>,
+  coordinates: Coordinates
+) {
+  const result = AlertSchema.safeParse(data)
+
+  if (result.error) {
+    return { error: "Datos inválidos." }
+  }
+
+  try {
+    const loggedUser = await currentUser()
+
+    if (!loggedUser || !loggedUser.entityId) {
+      return { error: "Acción no permitida." }
+    }
+
+    const { title, description, severity } = data
+
+    await db.alert.create({
+      data: {
+        title,
+        description,
+        severity,
+        affectedArea: [coordinates.center[0], coordinates.center[1]],
+        affectedAreaRadius: coordinates.radius,
+        user: {
+          connect: {
+            id: loggedUser.id,
+          },
+        },
+        entity: {
+          connect: {
+            id: loggedUser.entityId,
+          },
+        },
+      },
+    })
+
+    return { success: "Alerta creada exitosamente." }
+  } catch {
+    return { error: "Algo salió mal." }
+  }
 }

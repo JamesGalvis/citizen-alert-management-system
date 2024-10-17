@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic"
 
-import AlertForm from "./components/alert-form"
+import { AlertForm } from "./components/alert-form"
 
 const Map = dynamic(() => import("./components/interactive-map"), {
   ssr: false,

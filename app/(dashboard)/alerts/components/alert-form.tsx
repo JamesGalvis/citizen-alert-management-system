@@ -3,14 +3,10 @@
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
+import { useRouter } from "next/navigation"
+import { Info, Loader2, MapPinned } from "lucide-react"
+import { AlertSeverity } from "@prisma/client"
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import {
@@ -29,13 +25,15 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form"
-import { Coordinates } from "@/types"
 import { AlertSchema } from "@/schemas/alerts"
-import { AlertSeverity } from "@prisma/client"
-import { Info, Loader2, MapPinned } from "lucide-react"
 import useCoordinateStore from "@/store/coordinateStore"
+import { useToast } from "@/hooks/use-toast"
+import { createAlert } from "@/actions/alerts"
 
-export default function AlertForm() {
+export function AlertForm() {
+  const router = useRouter()
+
+  const { toast } = useToast()
   const { coordinates } = useCoordinateStore()
 
   const form = useForm({
@@ -43,15 +41,37 @@ export default function AlertForm() {
     defaultValues: {
       title: "",
       description: "",
-      severity: "",
+      severity: AlertSeverity.Baja,
     },
   })
 
   const { isSubmitting, isValid } = form.formState
 
   async function onSubmit(values: z.infer<typeof AlertSchema>) {
-    console.log("Alerta enviada:", values)
-    console.log("Coordenadas:", coordinates)
+    try {
+      const { error, success } = await createAlert(values, coordinates!)
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Algo salió mal.",
+          description: error,
+        })
+      }
+
+      if (success) {
+        toast({
+          title: success,
+        })
+        router.push("/")
+      }
+    } catch {
+      toast({
+        variant: "destructive",
+        title: "Algo salió mal.",
+        description: "Hubo un error al momento de realizar la solicitud.",
+      })
+    }
   }
 
   return (
@@ -113,11 +133,9 @@ export default function AlertForm() {
                         <SelectValue placeholder="Selecciona la severidad" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value={AlertSeverity.Baja}>Baja</SelectItem>
-                        <SelectItem value={AlertSeverity.Media}>
-                          Media
-                        </SelectItem>
-                        <SelectItem value={AlertSeverity.Alta}>Alta</SelectItem>
+                        <SelectItem value="Baja">Baja</SelectItem>
+                        <SelectItem value="Media">Media</SelectItem>
+                        <SelectItem value="Alta">Alta</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>

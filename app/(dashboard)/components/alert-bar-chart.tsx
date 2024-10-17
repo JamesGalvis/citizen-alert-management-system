@@ -23,7 +23,7 @@ export const description = "An interactive bar chart"
 const chartConfig = {
   alerts: {
     label: "Alertas",
-    color: "hsl(var(--chart-2))",
+    color: "hsl(var(--chart-1))",
   },
 } satisfies ChartConfig
 
@@ -36,10 +36,10 @@ export function AlertBarChart({ totalAlerts, data }: AlertBarChartProps) {
   return (
     <Card>
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
-        <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
+        <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6 bg-muted/30">
           <CardTitle>Total de Alertas</CardTitle>
           <CardDescription>
-            Alertas totales generadas en los últimos 3 meses
+            Alertas totales generadas a lo largo del año
           </CardDescription>
         </div>
         <div className="flex">
@@ -56,7 +56,7 @@ export function AlertBarChart({ totalAlerts, data }: AlertBarChartProps) {
           </button>
         </div>
       </CardHeader>
-      <CardContent className="px-2 sm:p-6">
+      <CardContent className="px-2 sm:p-6 bg-muted/35 dark:bg-muted/20">
         <ChartContainer
           config={chartConfig}
           className="aspect-auto h-[250px] w-full"

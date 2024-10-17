@@ -58,7 +58,7 @@ function InteractiveMap() {
       <div className="relative h-full">
         <MapContainer
           center={[4.142, -73.626]} // Coordenadas de Bogotá
-          zoom={12.6}
+          zoom={13}
           style={{ height: "100%", width: "100%" }}
         >
           <TileLayer
