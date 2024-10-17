@@ -1,4 +1,5 @@
 import { getUserById } from "@/actions/user"
+import { Navbar } from "@/components/common/navigation/navbar"
 import { currentUser } from "@/lib/auth-user"
 import { redirect } from "next/navigation"
 
@@ -16,5 +17,10 @@ export default async function DashboardLayout({
     redirect("/auth/complete")
   }
 
-  return <div>{children}</div>
+  return (
+    <div className="flex flex-col h-full">
+      <Navbar />
+      <main className="sm:px-8 px-4 h-full overflow-y-auto">{children}</main>
+    </div>
+  )
 }

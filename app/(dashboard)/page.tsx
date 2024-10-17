@@ -1,9 +1,34 @@
-import { LogoutButton } from "@/components/common/auth/logout-button"
+import { redirect } from "next/navigation"
 
-export default function Home() {
+import {
+  getAlerts,
+  getAlertsLastThreeMonthsByEntity,
+  getRecentAlerts,
+} from "@/actions/alerts"
+import { Dashboard } from "./components/dashboard"
+import { currentUser } from "@/lib/auth-user"
+import { formatAlertsData } from "@/utils/date"
+
+export default async function Home() {
+  const loggedUser = await currentUser()
+
+  if (!loggedUser) {
+    return redirect("/auth")
+  }
+
+  const alerts = await getAlerts(loggedUser.entityId!)
+  const recentAlerts = await getRecentAlerts(loggedUser.entityId!)
+
+  const rawAlerts = await getAlertsLastThreeMonthsByEntity(loggedUser.entityId!)
+  const formattedData = formatAlertsData(rawAlerts)
+
   return (
-    <div>
-      <LogoutButton />
+    <div className="min-h-full py-8">
+      <Dashboard
+        alerts={alerts}
+        recentAlerts={recentAlerts}
+        barChartData={formattedData}
+      />
     </div>
   )
 }

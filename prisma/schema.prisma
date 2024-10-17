@@ -19,9 +19,9 @@ enum UserRole {
 }
 
 enum AlertSeverity {
-  BAJA
-  MEDIA
-  ALTA
+  Baja
+  Media
+  Alta
 }
 
 model User {
@@ -36,6 +36,7 @@ model User {
   entityId String?
   entity   Entity? @relation(fields: [entityId], references: [id])
 
+  alerts   Alert[]
   accounts Account[]
 
   createdAt DateTime @default(now())
@@ -75,17 +76,18 @@ model Entity {
 }
 
 model Alert {
-  id          String        @id @default(cuid())
-  title       String
-  description String
-  type        String
-  severity    AlertSeverity
+  id           String        @id @default(cuid())
+  title        String
+  description  String
+  type         String
+  severity     AlertSeverity
+  affectedArea String?
 
   entityId String
   entity   Entity @relation(fields: [entityId], references: [id])
 
-  // userId      String
-  // user        User          @relation(fields: [userId], references: [id])
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -7,7 +7,11 @@ import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
-export function ModeToggle() {
+interface ModeToggleProps {
+  className?: string
+}
+
+export function ModeToggle({ className }: ModeToggleProps) {
   const { setTheme, theme } = useTheme()
 
   const [mounted, setMounted] = useState(false)
@@ -31,7 +35,7 @@ export function ModeToggle() {
       }}
       size="icon"
       variant="ghost"
-      className="hover:dark:bg-muted-foreground/35"
+      className={cn("hover:dark:bg-muted-foreground/35", className)}
     >
       <Sun
         className={cn(
