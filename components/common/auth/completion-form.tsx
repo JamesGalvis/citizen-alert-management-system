@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { entities } from "@/constants"
-import { completeRegistration, register } from "@/actions/auth"
+import { completeRegistration } from "@/actions/auth"
 import { useToast } from "@/hooks/use-toast"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useRouter } from "next/navigation"
@@ -66,7 +66,9 @@ export function CompletionForm({ user }: CompletionFormProps) {
         setError(response?.error)
       }
 
-      if (!response?.error) router.push("/")
+      if (!response?.error) {
+        router.push("/")
+      }
     } catch (error) {
       toast({
         variant: "destructive",
