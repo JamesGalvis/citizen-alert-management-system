@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { Loader } from "lucide-react"
+import { Suspense, useState } from "react"
 
 import { LargeLogo } from "@/components/common/large-logo"
 import { LoginForm } from "./components/login-form"
@@ -18,8 +19,10 @@ export default function AuthPage() {
     <div className="flex flex-col items-center justify-between gap-3 px-6 min-h-full overflow-hidden">
       <LargeLogo className="lg:hidden" />
 
-      {isLoggingIn && <LoginForm />}
-      {!isLoggingIn && <RegisterForm />}
+      <Suspense fallback={<Loader />}>
+        {isLoggingIn && <LoginForm />}
+        {!isLoggingIn && <RegisterForm />}
+      </Suspense>
 
       <div className="flex items-center gap-2">
         <span className="text-muted-foreground select-none">
