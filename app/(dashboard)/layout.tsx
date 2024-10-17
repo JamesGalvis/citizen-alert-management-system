@@ -20,7 +20,7 @@ export default async function DashboardLayout({
   return (
     <div className="flex flex-col h-full">
       <Navbar />
-      <main className="sm:px-8 px-4 h-full overflow-y-auto">{children}</main>
+      <main className="h-full overflow-y-auto">{children}</main>
     </div>
   )
 }

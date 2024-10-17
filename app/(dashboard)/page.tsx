@@ -23,7 +23,7 @@ export default async function Home() {
   const formattedData = formatAlertsData(rawAlerts)
 
   return (
-    <div className="min-h-full py-8">
+    <div className="min-h-full sm:px-8 px-4 py-8">
       <Dashboard
         alerts={alerts}
         recentAlerts={recentAlerts}
