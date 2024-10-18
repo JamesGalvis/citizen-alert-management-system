@@ -3,11 +3,11 @@ import dynamic from "next/dynamic"
 import { AlertForm } from "../components/alert-form"
 import { db } from "@/lib/db"
 
-const Map = dynamic(() => import("../components/interactive-map"), {
+const Map = dynamic(() => import("@/components/common/interactive-map"), {
   ssr: false,
 })
 
-export default async function ALertPage({
+export default async function AlertPage({
   params,
 }: {
   params: { alertId: string }

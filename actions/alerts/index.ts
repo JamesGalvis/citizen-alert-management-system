@@ -5,7 +5,6 @@ import { db } from "@/lib/db"
 import { AlertSchema } from "@/schemas/alerts"
 import { Coordinates } from "@/types"
 import { subMonths } from "date-fns"
-import { connect } from "http2"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 
@@ -36,6 +35,18 @@ export async function getRecentAlerts(entityId: string) {
     return recentAlerts
   } catch (error) {
     return []
+  }
+}
+
+export async function getAlertById(alertId: string) {
+  try {
+    const alert = await db.alert.findUnique({
+      where: { id: alertId },
+    })
+
+    return alert
+  } catch {
+    return null
   }
 }
 

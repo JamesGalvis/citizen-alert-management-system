@@ -1,9 +1,10 @@
+import { format } from "date-fns"
+
 import { DataTable } from "@/components/common/data-table"
 import { Heading } from "@/components/heading"
 import { currentUser } from "@/lib/auth-user"
 import { db } from "@/lib/db"
 import { AlertColum, columns } from "./components/columns"
-import { format } from "date-fns"
 import { ApiList } from "@/components/common/api-list"
 
 export default async function AlertsPage() {

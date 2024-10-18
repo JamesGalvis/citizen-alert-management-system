@@ -1,5 +1,7 @@
+"use client"
+
 import Image from "next/image"
-import {  MoreHorizontal } from "lucide-react"
+import { MoreHorizontal } from "lucide-react"
 
 import {
   Card,
@@ -15,16 +17,18 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Alert } from "@prisma/client"
+import { useRouter } from "next/navigation"
 
 interface RecentAlertsProps {
   alerts: Alert[]
 }
 
 export default function RecentAlerts({ alerts }: RecentAlertsProps) {
+  const router = useRouter()
+
   return (
     <Card className="overflow-hidden">
       <CardHeader>
@@ -89,11 +93,10 @@ export default function RecentAlerts({ alerts }: RecentAlertsProps) {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                    <DropdownMenuItem>Ver detalles</DropdownMenuItem>
-                    <DropdownMenuItem>Asignar</DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      Marcar como falso positivo
+                    <DropdownMenuItem
+                      onClick={() => router.push(`/alerts/${alert.id}`)}
+                    >
+                      Ver detalles
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

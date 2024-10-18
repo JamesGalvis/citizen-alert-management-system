@@ -2,6 +2,7 @@
 
 import { MenuIcon } from "lucide-react"
 import { usePathname, useRouter } from "next/navigation"
+import { UserRole } from "@prisma/client"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -15,10 +16,12 @@ import {
 import { cn } from "@/lib/utils"
 import { navItems } from "@/constants"
 import { LargeLogo } from "../large-logo"
+import { useCurrentRole } from "@/hooks/use-current-role"
 
 export function MobileNavbar() {
   const router = useRouter()
   const pathname = usePathname()
+  const currentRole = useCurrentRole()
 
   const handleClick = (href: string) => {
     router.push(href)
@@ -27,22 +30,34 @@ export function MobileNavbar() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button size="icon" variant="outline" className="sm:hidden rounded-full size-10">
+        <Button
+          size="icon"
+          variant="outline"
+          className="sm:hidden rounded-full size-10"
+        >
           <MenuIcon className="size-4" />
         </Button>
       </SheetTrigger>
       <SheetContent className="z-[999]">
         <SheetHeader className="text-start">
-          <SheetTitle className="text-start flex items-center gap-3 w-full"><LargeLogo /> SafeAlert</SheetTitle>
+          <SheetTitle className="text-start flex items-center gap-3 w-full">
+            <LargeLogo /> SafeAlert
+          </SheetTitle>
         </SheetHeader>
 
         <div className="mt-12 my-4 space-y-4">
-          {navItems.map(({ href, label, Icon }) => {
+          {navItems.map(({ href, label, Icon, onlyAdmin }) => {
             const isActive =
               (pathname === "/" && href === "/") || pathname === href
 
             return (
-              <SheetClose asChild key={href}>
+              <SheetClose
+                asChild
+                key={href}
+                className={cn(
+                  onlyAdmin && currentRole !== UserRole.ADMIN && "hidden"
+                )}
+              >
                 <p
                   onClick={() => handleClick(href)}
                   className={cn(
