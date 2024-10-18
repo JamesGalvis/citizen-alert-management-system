@@ -6,6 +6,7 @@ import { AlertSchema } from "@/schemas/alerts"
 import { Coordinates } from "@/types"
 import { subMonths } from "date-fns"
 import { connect } from "http2"
+import { revalidatePath } from "next/cache"
 import { z } from "zod"
 
 export async function getAlerts(entityId: string) {
@@ -100,7 +101,76 @@ export async function createAlert(
       },
     })
 
+    revalidatePath("/")
+
     return { success: "Alerta creada exitosamente." }
+  } catch {
+    return { error: "Algo salió mal." }
+  }
+}
+
+export async function updateAlert(
+  alertId: string,
+  data: z.infer<typeof AlertSchema>,
+  coordinates: Coordinates
+) {
+  const result = AlertSchema.safeParse(data)
+
+  if (result.error) {
+    return { error: "Datos inválidos." }
+  }
+
+  if (!alertId) {
+    return { error: "ID de la alerta requerido." }
+  }
+
+  try {
+    const loggedUser = await currentUser()
+
+    if (!loggedUser || !loggedUser.entityId) {
+      return { error: "Acción no permitida." }
+    }
+
+    const { title, description, severity } = data
+
+    await db.alert.update({
+      where: { id: alertId },
+      data: {
+        title,
+        description,
+        severity,
+        affectedArea: [coordinates.center[0], coordinates.center[1]],
+        affectedAreaRadius: coordinates.radius,
+      },
+    })
+
+    revalidatePath("/")
+
+    return { success: "Alerta actualizada exitosamente." }
+  } catch {
+    return { error: "Algo salió mal." }
+  }
+}
+
+export async function deleteAlert(alertId: string) {
+  if (!alertId) {
+    return { error: "ID de la alerta requerido." }
+  }
+
+  try {
+    const loggedUser = await currentUser()
+
+    if (!loggedUser || !loggedUser.entityId) {
+      return { error: "Acción no permitida." }
+    }
+
+    await db.alert.delete({
+      where: { id: alertId },
+    })
+
+    revalidatePath("/")
+
+    return { success: "Alerta eliminada exitosamente." }
   } catch {
     return { error: "Algo salió mal." }
   }

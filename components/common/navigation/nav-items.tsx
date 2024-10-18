@@ -13,7 +13,7 @@ export function NavItems() {
   }
 
   return (
-    <nav className="ml-6">
+    <nav className="ml-6 max-sm:hidden">
       <ul className="flex items-center gap-3">
         {navItems.map(({ label, href }) => {
           const isActive =

@@ -2,7 +2,13 @@
 
 import L from "leaflet"
 import { useEffect, useState } from "react"
-import { MapContainer, TileLayer, FeatureGroup } from "react-leaflet"
+import {
+  MapContainer,
+  TileLayer,
+  FeatureGroup,
+  Circle,
+  Tooltip,
+} from "react-leaflet"
 import { EditControl } from "react-leaflet-draw"
 
 import "leaflet/dist/leaflet.css"
@@ -13,7 +19,11 @@ import "leaflet-defaulticon-compatibility"
 
 import useCoordinateStore from "@/store/coordinateStore"
 
-function InteractiveMap() {
+interface InteractiveMapProps {
+  circleCoordinates: { center: number[]; radius: number } | null
+}
+
+function InteractiveMap({ circleCoordinates }: InteractiveMapProps) {
   const { setCoordinates, resetCoordinates } = useCoordinateStore()
   const [drawnItems, setDrawnItems] = useState<L.FeatureGroup<any>>(
     new L.FeatureGroup()
@@ -55,40 +65,63 @@ function InteractiveMap() {
 
   return (
     <>
-      <div className="relative h-full">
-        <MapContainer
-          center={[4.142, -73.626]} // Coordenadas de Bogotá
-          zoom={13}
-          style={{ height: "100%", width: "100%" }}
-        >
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <FeatureGroup
-            ref={(featureGroupRef) => {
-              if (featureGroupRef) {
-                // Chequeo para asegurarse de que no sea null
-                setDrawnItems(featureGroupRef)
-              }
-            }}
-          >
-            <EditControl
-              position="topright"
-              onCreated={handleCreated} // Llama a handleCreated cuando se crea un nuevo elemento
-              onDeleted={handleDeleted} // Agregado para manejar la eliminación
-              draw={{
-                rectangle: false,
-                circle: true, // Habilitamos la opción de dibujar círculos
-                circlemarker: false,
-                marker: false,
-                polyline: false,
-                polygon: false, // Deshabilitamos polígonos
-              }}
-            />
+      <MapContainer
+        scrollWheelZoom={false}
+        center={
+          !circleCoordinates
+            ? [4.142, -73.626]
+            : [circleCoordinates.center[0], circleCoordinates.center[1]]
+        }
+        zoom={15}
+        className="md:size-full max-md:min-h-[450px]"
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        {circleCoordinates && (
+          <FeatureGroup pathOptions={{ color: "red" }}>
+            <Circle
+            interactive={false}
+              center={[
+                circleCoordinates.center[0],
+                circleCoordinates.center[1],
+              ]}
+              pathOptions={{ fillColor: "red" }}
+              radius={circleCoordinates.radius}
+              className="focus-visible:ring-0 focus-visible:ring-transparent ring-0 ring-transparent"
+            >
+              <Tooltip direction="bottom" offset={[0, 20]} opacity={1} permanent>
+                Zona de afectación actual:{" "}
+                {`${circleCoordinates.radius.toFixed(0)} metros`}
+              </Tooltip>
+            </Circle>
           </FeatureGroup>
-        </MapContainer>
-      </div>
+        )}
+        <FeatureGroup
+          ref={(featureGroupRef) => {
+            if (featureGroupRef) {
+              // Chequeo para asegurarse de que no sea null
+              setDrawnItems(featureGroupRef)
+            }
+          }}
+        >
+          <Tooltip>Zona de afectación nueva</Tooltip>
+          <EditControl
+            position="topright"
+            onCreated={handleCreated} // Llama a handleCreated cuando se crea un nuevo elemento
+            onDeleted={handleDeleted} // Agregado para manejar la eliminación
+            draw={{
+              rectangle: false,
+              circle: true, // Habilitamos la opción de dibujar círculos
+              circlemarker: false,
+              marker: false,
+              polyline: false,
+              polygon: false, // Deshabilitamos polígonos
+            }}
+          />
+        </FeatureGroup>
+      </MapContainer>
     </>
   )
 }

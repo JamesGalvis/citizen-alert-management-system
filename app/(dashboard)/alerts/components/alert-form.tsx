@@ -1,12 +1,21 @@
 "use client"
 
 import { z } from "zod"
+import { useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { useRouter } from "next/navigation"
-import { Info, Loader2, MapPinned } from "lucide-react"
-import { AlertSeverity } from "@prisma/client"
+import { Info, Loader2, MapPinned, Slash } from "lucide-react"
+import { Alert, AlertSeverity } from "@prisma/client"
 
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import {
@@ -28,26 +37,65 @@ import {
 import { AlertSchema } from "@/schemas/alerts"
 import useCoordinateStore from "@/store/coordinateStore"
 import { useToast } from "@/hooks/use-toast"
-import { createAlert } from "@/actions/alerts"
+import { createAlert, updateAlert } from "@/actions/alerts"
 
-export function AlertForm() {
+interface AlertFormProps {
+  initialData: Alert | null
+}
+
+export function AlertForm({ initialData }: AlertFormProps) {
   const router = useRouter()
 
   const { toast } = useToast()
-  const { coordinates } = useCoordinateStore()
+  const { coordinates, setCoordinates, resetCoordinates } = useCoordinateStore()
+
+  useEffect(() => {
+    if (initialData) {
+      setCoordinates({
+        center: [initialData.affectedArea[0], initialData.affectedArea[1]],
+        radius: initialData.affectedAreaRadius,
+      })
+    }
+  }, [initialData])
+
+  const title = initialData ? "Editar alerta" : "Crear alerta"
+  const description = initialData
+    ? "Realiza los cambios que necesites para la alerta"
+    : "Llena el formulario y genera la alerta ciudadana"
+  const toastMessage = initialData ? "Alerta actualizado" : "Alerta creada"
+  const action = initialData ? "Guardar cambios" : "Crear alerta"
+  const breadcrumbPageLabel = initialData ? "Actualizar alerta" : "Crear alerta"
 
   const form = useForm({
     resolver: zodResolver(AlertSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      severity: AlertSeverity.Baja,
+      title: initialData?.title || "",
+      description: initialData?.description || "",
+      severity: initialData?.severity || AlertSeverity.Baja,
     },
   })
 
   const { isSubmitting, isValid } = form.formState
 
   async function onSubmit(values: z.infer<typeof AlertSchema>) {
+    try {
+      if (!initialData) {
+        createNewAlert(values)
+      }
+
+      if (initialData) {
+        updateExistingAlert(initialData.id, values)
+      }
+    } catch {
+      toast({
+        variant: "destructive",
+        title: "Algo salió mal.",
+        description: "Hubo un error al momento de realizar la solicitud.",
+      })
+    }
+  }
+
+  async function createNewAlert(values: z.infer<typeof AlertSchema>) {
     try {
       const { error, success } = await createAlert(values, coordinates!)
 
@@ -60,10 +108,48 @@ export function AlertForm() {
       }
 
       if (success) {
+        resetCoordinates()
         toast({
-          title: success,
+          variant: "success",
+          title: toastMessage,
         })
-        router.push("/")
+        router.push("/alerts")
+      }
+    } catch {
+      toast({
+        variant: "destructive",
+        title: "Algo salió mal.",
+        description: "Hubo un error al momento de realizar la solicitud.",
+      })
+    }
+  }
+
+  async function updateExistingAlert(
+    alertId: string,
+    values: z.infer<typeof AlertSchema>
+  ) {
+    try {
+      const { error, success } = await updateAlert(
+        alertId,
+        values,
+        coordinates!
+      )
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Algo salió mal.",
+          description: error,
+        })
+      }
+
+      if (success) {
+        resetCoordinates()
+        toast({
+          variant: "success",
+          title: toastMessage,
+        })
+        router.push("/alerts")
       }
     } catch {
       toast({
@@ -76,11 +162,28 @@ export function AlertForm() {
 
   return (
     <div className="flex flex-col justify-center min-h-full">
+      <Breadcrumb className="px-5 py-6 pt-8 md:hidden">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/">Dashboard</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator>
+            <Slash />
+          </BreadcrumbSeparator>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/alerts">Alertas</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator>
+            <Slash />
+          </BreadcrumbSeparator>
+          <BreadcrumbItem>
+            <BreadcrumbPage>{breadcrumbPageLabel}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <div className="text-start p-5">
-        <h2 className="text-2xl font-medium">Crear Alerta</h2>
-        <p className="text-sm text-muted-foreground">
-          Llena el formulario y genera la alerta ciudadana
-        </p>
+        <h2 className="text-2xl font-medium">{title}</h2>
+        <p className="text-sm text-muted-foreground">{description}</p>
       </div>
       <div className="px-5 py-4">
         <Form {...form}>
@@ -113,6 +216,7 @@ export function AlertForm() {
                     <Textarea
                       id="description"
                       placeholder="Describe la alerta"
+                      rows={5}
                       {...field}
                     />
                   </FormControl>
@@ -183,7 +287,7 @@ export function AlertForm() {
               {isSubmitting && (
                 <Loader2 className="h-5 w-5 mr-3 animate-spin" />
               )}
-              Crear Alerta
+              {action}
             </Button>
           </form>
         </Form>

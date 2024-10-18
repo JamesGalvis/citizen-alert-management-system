@@ -1,23 +1,41 @@
-"use client"
+import { DataTable } from "@/components/common/data-table"
+import { Heading } from "@/components/heading"
+import { currentUser } from "@/lib/auth-user"
+import { db } from "@/lib/db"
+import { AlertColum, columns } from "./components/columns"
+import { format } from "date-fns"
+import { ApiList } from "@/components/common/api-list"
 
-import dynamic from "next/dynamic"
+export default async function AlertsPage() {
+  const loggedUser = await currentUser()
 
-import { AlertForm } from "./components/alert-form"
+  const alerts = await db.alert.findMany({
+    where: {
+      entityId: loggedUser?.entityId!,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  })
 
-const Map = dynamic(() => import("./components/interactive-map"), {
-  ssr: false,
-})
+  const formattedAlerts: AlertColum[] = alerts.map((alert) => ({
+    id: alert.id,
+    title: alert.title!,
+    description: alert.description!,
+    severity: alert.severity!,
+    createdAt: format(alert.createdAt, "MMM do, yyyy")!,
+  }))
 
-export default function AlertsPage() {
   return (
-    <div className="flex h-full overflow-hidden">
-      <div className="xl:w-1/3 w-1/2 shrink-0 h-full py-4 px-2 overflow-y-auto">
-        <AlertForm />
-      </div>
-
-      <div className="flex-1 h-full overflow-hidden">
-        <Map />
-      </div>
+    <div className="sm:px-8 px-4 py-8 space-y-12">
+      <Heading
+        title={`Alertas (${alerts.length})`}
+        description="Crea o modifica las alertas y manten informados a los ciudadanos"
+        buttonHref="/alerts/new"
+      />
+      <DataTable searchKey="title" columns={columns} data={formattedAlerts} />
+      <Heading title="API" description="Llamadas a la API para las alertas" />
+      <ApiList entityName="alerts" entityIdName="alertId" />
     </div>
   )
 }

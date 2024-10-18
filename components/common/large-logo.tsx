@@ -30,7 +30,7 @@ export function LargeLogo({ className, dinamicColor = true }: LargeLogoProps) {
       )}
       <span
         className={cn(
-          "text-[16px] tracking-wider",
+          "text-[16px] tracking-wider max-sm:hidden",
           !dinamicColor && "text-white"
         )}
       >

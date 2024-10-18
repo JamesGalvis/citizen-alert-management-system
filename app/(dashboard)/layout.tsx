@@ -28,7 +28,7 @@ export default async function DashboardLayout({
         </InitialAuthLayout>
       )}
       {!missingEntityRelation && (
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full overflow-hidden">
           <Navbar />
           <main className="h-full overflow-y-auto">{children}</main>
         </div>
